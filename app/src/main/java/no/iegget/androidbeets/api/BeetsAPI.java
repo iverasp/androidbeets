@@ -2,9 +2,11 @@ package no.iegget.androidbeets.api;
 
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.AlbumSearch;
-import no.iegget.androidbeets.models.AllArtists;
+import no.iegget.androidbeets.models.AlbumTracks;
+import no.iegget.androidbeets.models.Albums;
 import no.iegget.androidbeets.models.AllTracks;
 import no.iegget.androidbeets.models.ArtistAlbumsSearch;
+import no.iegget.androidbeets.models.Artists;
 import no.iegget.androidbeets.models.Stats;
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.models.TrackSearch;
@@ -32,13 +34,19 @@ public interface BeetsAPI {
     @GET("/album/{id}")
     Call<Album> loadAlbum(@Path("id") String id);
 
+    @GET("item/query/albumartist:{artist}/album:{album}")
+    Call<AlbumTracks> loadAlbumTracks(@Path("artist") String artist, @Path("album") String album);
+
     @GET("/artist/")
-    Call<AllArtists> loadArtists();
+    Call<Artists> loadArtists();
 
     @GET("/album/artist/{query}")
     Call<ArtistAlbumsSearch> searchArtistAlbums(@Path("query") String query);
 
     @GET("/stats")
     Call<Stats> loadStats();
+
+    @GET("/album/query/albumartist:{artist}")
+    Call<Albums> loadAlbumsByArtist(@Path("artist") String artist);
 
 }

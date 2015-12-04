@@ -1,9 +1,9 @@
 package no.iegget.androidbeets.fragments;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,8 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import no.iegget.androidbeets.R;
-import no.iegget.androidbeets.fragments.dummy.DummyContent;
-import no.iegget.androidbeets.fragments.dummy.DummyContent.DummyItem;
+import no.iegget.androidbeets.adapters.AlbumsRecyclerViewAdapter;
+import no.iegget.androidbeets.content.AlbumsContent;
+import no.iegget.androidbeets.models.Album;
+import no.iegget.androidbeets.models.Artist;
+import no.iegget.androidbeets.utils.Global;
+
 
 /**
  * A fragment representing a list of Items.
@@ -21,27 +25,29 @@ import no.iegget.androidbeets.fragments.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class HomeFragment extends Fragment {
+public class AlbumsFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
+    private String artist;
     private OnListFragmentInteractionListener mListener;
+    private AlbumsRecyclerViewAdapter adapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public HomeFragment() {
+    public AlbumsFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static HomeFragment newInstance(int columnCount) {
-        HomeFragment fragment = new HomeFragment();
+    public static AlbumsFragment newInstance(int columnCount, Artist artist) {
+        AlbumsFragment fragment = new AlbumsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putString(Global.ARTIST, artist.getName());
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,13 +58,14 @@ public class HomeFragment extends Fragment {
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            artist = getArguments().getString(Global.ARTIST);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -69,11 +76,12 @@ public class HomeFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(
+                    new AlbumsRecyclerViewAdapter(mListener, getActivity(), artist)
+            );
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Activity context) {
@@ -104,6 +112,6 @@ public class HomeFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(AlbumsContent.AlbumItem item);
     }
 }

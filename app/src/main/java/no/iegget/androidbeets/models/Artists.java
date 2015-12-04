@@ -5,11 +5,11 @@ import java.util.List;
 /**
  * Created by iver on 30/11/15.
  */
-public class AllArtists {
+public class Artists {
 
     List<String> artist_names;
 
-    public List<String> getArtistNames() {
+    public List<String> getResults() {
         return artist_names;
     }
 

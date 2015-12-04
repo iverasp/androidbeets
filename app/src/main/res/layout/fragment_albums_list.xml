@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="no.iegget.androidbeets.fragments.HomeFragment"
-    tools:listitem="@layout/fragment_item" />
+    tools:context=".fragments.ArtistsFragment"
+    tools:listitem="@layout/fragment_artists" />

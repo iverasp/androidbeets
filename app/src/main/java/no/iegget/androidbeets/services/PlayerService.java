@@ -1,12 +1,28 @@
 package no.iegget.androidbeets.services;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.wifi.WifiManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.io.IOException;
+
+import no.iegget.androidbeets.MainActivity;
+import no.iegget.androidbeets.R;
+import no.iegget.androidbeets.content.AlbumContent;
+import no.iegget.androidbeets.utils.BaseUrl;
+import no.iegget.androidbeets.utils.Global;
 
 /**
  * Created by iver on 01/12/15.
@@ -14,31 +30,105 @@ import android.support.annotation.Nullable;
 public class PlayerService extends Service
         implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener,
+        MediaPlayer.OnCompletionListener,
         AudioManager.OnAudioFocusChangeListener {
 
-    private final static String ACTION_PLAY = "no.iegget.androidbeets.PLAY";
-    MediaPlayer mMediaPlayer = null;
 
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals(ACTION_PLAY)) {
-            initMediaPlayer();
+    MediaPlayer mMediaPlayer = null;
+    private final IBinder mBinder = new LocalBinder();
+    private final String TAG = this.getClass().getSimpleName();
+
+    WifiManager.WifiLock wifiLock = null;
+
+    PendingIntent pi;
+
+    public class LocalBinder extends Binder {
+
+        public PlayerService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return PlayerService.this;
         }
+    }
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //if (intent.getAction().equals(Global.ACTION_PLAY)) {
+            initMediaPlayer();
+        //}
+        pi  = PendingIntent.getActivity(getApplicationContext(), 0,
+                new Intent(getApplicationContext(), MainActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         return 0;
     }
 
     private void initMediaPlayer() {
+        Log.w(TAG, "initmediaplayer");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        mMediaPlayer.prepareAsync();
+    }
+
+    private void makeForeground(String songName) {
+
+        Notification.Builder notification = new Notification.Builder(this)
+                .setContentTitle("AndroidBeets")
+                .setContentText("Playing: " + songName);
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        notification.setContentIntent(resultPendingIntent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(99, notification.build());
+
+        startForeground(BIND_IMPORTANT, notification.build());
+    }
+
+    public void loadTrack(AlbumContent.TrackItem track) {
+        Log.w(TAG, "loading track: " + track.title);
+
+        wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+        wifiLock.acquire();
+        makeForeground(track.title);
+        if (mMediaPlayer == null) {
+            Log.w(TAG, "OMG MEDIAPLAYER IS NULL!");
+            initMediaPlayer();
+        }
+
+        mMediaPlayer.reset();
+
+        try {
+            mMediaPlayer.setDataSource(BaseUrl.baseUrl + "/item/" + track.id + "/transcode?coding=mp3&bitrate=192");
+            mMediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pause() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.pause();
+        }
+    }
+
+    public void resume() {
+        if (mMediaPlayer != null ) {
+            mMediaPlayer.start();
+        }
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -49,6 +139,12 @@ public class PlayerService extends Service
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         return false;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        wifiLock.release();
+        stopForeground(true);
     }
 
     @Override

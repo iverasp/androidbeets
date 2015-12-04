@@ -1,44 +1,51 @@
-package no.iegget.androidbeets.fragments;
+package no.iegget.androidbeets.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import no.iegget.androidbeets.R;
-import no.iegget.androidbeets.fragments.dummy.DummyContent.DummyItem;
-import no.iegget.androidbeets.fragments.HomeFragment.OnListFragmentInteractionListener;
-
 import java.util.List;
 
+import no.iegget.androidbeets.R;
+import no.iegget.androidbeets.content.AlbumContent;
+import no.iegget.androidbeets.fragments.AlbumFragment;
+import no.iegget.androidbeets.fragments.AlbumFragment.OnListFragmentInteractionListener;
+import no.iegget.androidbeets.models.Album;
+
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link AlbumContent.TrackItem} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
-public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder> {
+public class AlbumRecyclerViewAdapter
+        extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final String TAG = this.getClass().getSimpleName();
+    private final List<AlbumContent.TrackItem> mValues;
+    private final AlbumFragment.OnListFragmentInteractionListener mListener;
+    private Context mContext;
+    private AlbumContent content;
 
-    public MyItemRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
+    public AlbumRecyclerViewAdapter(AlbumFragment.OnListFragmentInteractionListener listener, Context context, Album album) {
+        content = new AlbumContent(this, album);
+        mValues = content.ITEMS;
         mListener = listener;
+        mContext = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_item, parent, false);
+                .inflate(R.layout.fragment_album, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mTitleView.setText(mValues.get(position).title);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,20 +66,18 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+        public final TextView mTitleView;
+        public AlbumContent.TrackItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mTitleView = (TextView) view.findViewById(R.id.track_title);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mTitleView.getText() + "'";
         }
     }
 }
