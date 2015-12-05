@@ -14,6 +14,7 @@ import no.iegget.androidbeets.api.BeetsAPI;
 import no.iegget.androidbeets.api.ItunesAPI;
 import no.iegget.androidbeets.models.Artists;
 import no.iegget.androidbeets.models.ItunesSearch;
+import no.iegget.androidbeets.utils.BaseUrl;
 import no.iegget.androidbeets.utils.Global;
 import retrofit.Call;
 import retrofit.Callback;
@@ -40,13 +41,13 @@ public class ArtistsContent {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client.interceptors().add(interceptor);
         retrofitBeats = new Retrofit.Builder()
-                .baseUrl(Global.baseUrl)
-                        //.client(client)
+                .baseUrl(BaseUrl.baseUrl)
+                //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         retrofitItunes = new Retrofit.Builder()
                 .baseUrl(Global.itunesBaseUrl)
-                        //.client(client)
+                //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         BeetsAPI beetsAPI = retrofitBeats.create(BeetsAPI.class);

@@ -10,7 +10,8 @@ public class Album {
     int id;
     String album;
     String albumartist;
-    //List<Track> tracks;
+    int year;
+    String genre;
 
     public Album(String albumArtist, String albumTitle) {
         this.albumartist = albumArtist;
@@ -32,5 +33,13 @@ public class Album {
 
     public String getAlbumartist() {
         return albumartist;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public String getGenre() {
+        return genre;
     }
 }

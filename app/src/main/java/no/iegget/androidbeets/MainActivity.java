@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(ArtistsContent.ArtistItem item) {
         AlbumsFragment albumsFragment = AlbumsFragment.newInstance(
-                1,
+                2,
                 new Artist(item.name)
         );
         replaceFragment(albumsFragment);

@@ -14,8 +14,8 @@ import no.iegget.androidbeets.api.BeetsAPI;
 import no.iegget.androidbeets.api.ItunesAPI;
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Albums;
-import no.iegget.androidbeets.models.Artists;
 import no.iegget.androidbeets.models.ItunesSearch;
+import no.iegget.androidbeets.utils.BaseUrl;
 import no.iegget.androidbeets.utils.Global;
 import retrofit.Call;
 import retrofit.Callback;
@@ -25,12 +25,9 @@ import retrofit.Retrofit;
 
 public class AlbumsContent {
 
-    private static final String TAG = "ArtistContent";
+    private static final String TAG = "AlbumsContent";
 
     public static List<AlbumItem> ITEMS;
-
-    //public static final List<String> ITEM_MAP = new ArrayList<>();
-
     Retrofit retrofitBeats;
     static Retrofit retrofitItunes;
     static AlbumsRecyclerViewAdapter adapter;
@@ -43,13 +40,13 @@ public class AlbumsContent {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client.interceptors().add(interceptor);
         retrofitBeats = new Retrofit.Builder()
-                .baseUrl(Global.baseUrl)
+                .baseUrl(BaseUrl.baseUrl)
                 //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         retrofitItunes = new Retrofit.Builder()
                 .baseUrl(Global.itunesBaseUrl)
-                .client(client)
+                //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         BeetsAPI beetsAPI = retrofitBeats.create(BeetsAPI.class);
@@ -58,7 +55,12 @@ public class AlbumsContent {
             @Override
             public void onResponse(Response<Albums> response, Retrofit retrofit) {
                 for (Album album : response.body().getResults()) {
-                    addItem(createAlbumItem(album.getAlbum(), album.getAlbumartist()));
+                    addItem(createAlbumItem(
+                            album.getAlbum(),
+                            album.getAlbumartist(),
+                            album.getYear(),
+                            album.getGenre()
+                    ));
                 }
             }
 
@@ -77,7 +79,7 @@ public class AlbumsContent {
             public void onResponse(Response<ItunesSearch> response, Retrofit retrofit) {
                 String url = null;
                 try {
-                    url = response.body().getResults().get(0).getArtworkUrl60();
+                    url = response.body().getResults().get(0).getArtworkUrl(200);
                 } catch (NullPointerException e) {
                     Log.w(TAG, "response is null!");
                 } catch (IndexOutOfBoundsException e) {
@@ -85,7 +87,7 @@ public class AlbumsContent {
                 }
 
                 if (url != null) item.setArtworkUrl(url);
-                //Log.w(TAG, "added " + item.name);
+                Log.w(TAG, "added " + item.name);
                 if (!ITEMS.contains(item)) {
                     ITEMS.add(item);
                     Collections.sort(ITEMS);
@@ -106,18 +108,22 @@ public class AlbumsContent {
 
     }
 
-    private static AlbumItem createAlbumItem(String album, String albumArtist) {
-        return new AlbumItem(album, albumArtist);
+    private static AlbumItem createAlbumItem(String album, String albumArtist, int albumYear, String albumGenre) {
+        return new AlbumItem(album, albumArtist, albumYear, albumGenre);
     }
 
     public static class AlbumItem implements Comparable {
         public final String name;
         public String artworkUrl;
         public final String albumArtist;
+        public int albumYear;
+        public String albumGenre;
 
-        public AlbumItem(String name, String albumArtist) {
+        public AlbumItem(String name, String albumArtist, int albumYear, String albumGenre) {
             this.name = name;
             this.albumArtist = albumArtist;
+            this.albumYear = albumYear;
+            this.albumGenre = albumGenre;
         }
 
         public void setArtworkUrl(String artworkUrl) {

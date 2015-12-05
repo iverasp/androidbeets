@@ -2,20 +2,68 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_margin="4dp">
 
-    <ImageView
-        android:id="@+id/artist_artwork"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_margin="2dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder" />
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        card_view:cardCornerRadius="2dp" >
 
-    <TextView
-        android:id="@+id/artist_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/album_artwork"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_margin="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder" />
+
+            <TextView
+                android:id="@+id/album_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_below="@+id/album_artwork"
+                android:textSize="10sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/album_title"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/album_track_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="6sp" />
+
+                <TextView
+                    android:id="@+id/album_count_year_delimiter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="6sp"
+                    android:text=" - "
+                    android:layout_alignRight="@id/album_track_count"/>
+
+                <TextView
+                    android:id="@+id/album_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignRight="@+id/album_count_year_delimiter"
+                    android:textSize="6sp"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
 </LinearLayout>

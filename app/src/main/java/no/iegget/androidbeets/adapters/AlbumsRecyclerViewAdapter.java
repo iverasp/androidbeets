@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 import no.iegget.androidbeets.R;
@@ -41,7 +43,7 @@ public class AlbumsRecyclerViewAdapter
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_artists, parent, false);
+                .inflate(R.layout.fragment_albums, parent, false);
         return new ViewHolder(view);
     }
 
@@ -50,12 +52,20 @@ public class AlbumsRecyclerViewAdapter
         holder.mItem = mValues.get(position);
         holder.mTitleView.setText(mValues.get(position).name);
 
+        int albumYear = mValues.get(position).albumYear;
+        String albumGenre = mValues.get(position).albumGenre;
+
+        String year = (albumYear == 0) ? "Uknown" : Integer.toString(albumYear);
+        String genre = (albumGenre == null) ? "Unknown" : albumGenre;
+
+        holder.mYearView.setText(year);
+        holder.mTrackCountView.setText(genre);
+
         //Picasso.with(mContext).setIndicatorsEnabled(true);
         //Picasso.with(mContext).setLoggingEnabled(true);
         if (holder.mItem.artworkUrl != null) {
             Picasso.with(mContext)
                     .load(holder.mItem.artworkUrl)
-                    .resize(50, 50)
                     .error(R.mipmap.ic_launcher)
                     .placeholder(R.drawable.placeholder)
                     .into(holder.mImageView);
@@ -81,15 +91,19 @@ public class AlbumsRecyclerViewAdapter
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mTitleView;
         public final ImageView mImageView;
+        public final TextView mTitleView;
+        public final TextView mYearView;
+        public final TextView mTrackCountView;
         public AlbumsContent.AlbumItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.artist_title);
-            mImageView = (ImageView) view.findViewById(R.id.artist_artwork);
+            mImageView = (ImageView) view.findViewById(R.id.album_artwork);
+            mTitleView = (TextView) view.findViewById(R.id.album_title);
+            mYearView = (TextView) view.findViewById(R.id.album_year);
+            mTrackCountView = (TextView) view.findViewById(R.id.album_track_count);
         }
 
         @Override
