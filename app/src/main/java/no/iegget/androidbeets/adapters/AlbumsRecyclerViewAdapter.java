@@ -10,17 +10,16 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.content.AlbumsContent;
 import no.iegget.androidbeets.fragments.AlbumsFragment;
+import no.iegget.androidbeets.models.Album;
 
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link no.iegget.androidbeets.content.AlbumsContent.AlbumItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Album} and makes a call to the
  * specified {@link no.iegget.androidbeets.fragments.AlbumsFragment.OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
@@ -28,14 +27,15 @@ public class AlbumsRecyclerViewAdapter
         extends RecyclerView.Adapter<AlbumsRecyclerViewAdapter.ViewHolder> {
 
     private final String TAG = this.getClass().getSimpleName();
-    private final List<AlbumsContent.AlbumItem> mValues;
+    private final List<Album> mValues;
     private final AlbumsFragment.OnListFragmentInteractionListener mListener;
     private Context mContext;
     private AlbumsContent content;
+    private int ARTWORK_SIZE = 200;
 
     public AlbumsRecyclerViewAdapter(AlbumsFragment.OnListFragmentInteractionListener listener, Context context, String artist) {
         content = new AlbumsContent(this, artist);
-        mValues = content.ITEMS;
+        mValues = content.items;
         mListener = listener;
         mContext = context;
     }
@@ -50,10 +50,10 @@ public class AlbumsRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mTitleView.setText(mValues.get(position).name);
+        holder.mTitleView.setText(mValues.get(position).getAlbum());
 
-        int albumYear = mValues.get(position).albumYear;
-        String albumGenre = mValues.get(position).albumGenre;
+        int albumYear = mValues.get(position).getYear();
+        String albumGenre = mValues.get(position).getGenre();
 
         String year = (albumYear == 0) ? "Unknown year" : Integer.toString(albumYear);
         String genre = (albumGenre.isEmpty()) ? "Unknown genre" : albumGenre;
@@ -63,9 +63,9 @@ public class AlbumsRecyclerViewAdapter
 
         //Picasso.with(mContext).setIndicatorsEnabled(true);
         //Picasso.with(mContext).setLoggingEnabled(true);
-        if (holder.mItem.artworkUrl != null) {
+        if (holder.mItem.getArtworkUrl(ARTWORK_SIZE) != null) {
             Picasso.with(mContext)
-                    .load(holder.mItem.artworkUrl)
+                    .load(holder.mItem.getArtworkUrl(ARTWORK_SIZE))
                     .error(R.mipmap.ic_launcher)
                     .placeholder(R.drawable.placeholder)
                     .into(holder.mImageView);
@@ -95,7 +95,7 @@ public class AlbumsRecyclerViewAdapter
         public final TextView mTitleView;
         public final TextView mYearView;
         public final TextView mTrackCountView;
-        public AlbumsContent.AlbumItem mItem;
+        public Album mItem;
 
         public ViewHolder(View view) {
             super(view);

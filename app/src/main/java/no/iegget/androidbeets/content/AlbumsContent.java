@@ -27,13 +27,13 @@ public class AlbumsContent {
 
     private static final String TAG = "AlbumsContent";
 
-    public static List<AlbumItem> ITEMS;
+    public static List<Album> items;
     Retrofit retrofitBeats;
     static Retrofit retrofitItunes;
     static AlbumsRecyclerViewAdapter adapter;
 
     public AlbumsContent(AlbumsRecyclerViewAdapter adapter, String artist) {
-        ITEMS = new ArrayList<>();
+        items = new ArrayList<>();
         this.adapter = adapter;
         OkHttpClient client = new OkHttpClient();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -55,12 +55,7 @@ public class AlbumsContent {
             @Override
             public void onResponse(Response<Albums> response, Retrofit retrofit) {
                 for (Album album : response.body().getResults()) {
-                    addItem(createAlbumItem(
-                            album.getAlbum(),
-                            album.getAlbumartist(),
-                            album.getYear(),
-                            album.getGenre()
-                    ));
+                    addItem(album);
                 }
             }
 
@@ -71,9 +66,9 @@ public class AlbumsContent {
         });
     }
 
-    private static void addItem(final AlbumItem item) {
+    private static void addItem(final Album item) {
         ItunesAPI itunesAPI = retrofitItunes.create(ItunesAPI.class);
-        Call<ItunesSearch> itunesSearchCall = itunesAPI.searchItunesForAlbum(item.name + "+" + item.albumArtist);
+        Call<ItunesSearch> itunesSearchCall = itunesAPI.searchItunesForAlbum(item.getAlbum() + "+" + item.getAlbumartist());
         itunesSearchCall.enqueue(new Callback<ItunesSearch>() {
             @Override
             public void onResponse(Response<ItunesSearch> response, Retrofit retrofit) {
@@ -87,10 +82,9 @@ public class AlbumsContent {
                 }
 
                 if (url != null) item.setArtworkUrl(url);
-                Log.w(TAG, "added " + item.name);
-                if (!ITEMS.contains(item)) {
-                    ITEMS.add(item);
-                    Collections.sort(ITEMS);
+                if (!items.contains(item)) {
+                    items.add(item);
+                    Collections.sort(items);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -99,55 +93,12 @@ public class AlbumsContent {
             @Override
             public void onFailure(Throwable t) {
                 Log.w(TAG, "FAILURE!");
-                ITEMS.add(item);
-                Collections.sort(ITEMS);
+                items.add(item);
+                Collections.sort(items);
                 adapter.notifyDataSetChanged();
             }
         });
 
 
-    }
-
-    private static AlbumItem createAlbumItem(String album, String albumArtist, int albumYear, String albumGenre) {
-        return new AlbumItem(album, albumArtist, albumYear, albumGenre);
-    }
-
-    public static class AlbumItem implements Comparable {
-        public final String name;
-        public final String albumArtist;
-        public final int albumYear;
-        public final String albumGenre;
-        public String artworkUrl;
-
-        public AlbumItem(String name, String albumArtist, int albumYear, String albumGenre) {
-            this.name = name;
-            this.albumArtist = albumArtist;
-            this.albumYear = albumYear;
-            this.albumGenre = albumGenre;
-        }
-
-        public void setArtworkUrl(String artworkUrl) {
-            this.artworkUrl = artworkUrl;
-        }
-
-        public String getArtworkUrl(int size) {
-            String base = artworkUrl.substring(0, artworkUrl.lastIndexOf("/source/"));
-            return base + "/source/" + size + "x" + size + "bb.jpg";
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public int compareTo(Object another) {
-            return this.name.toLowerCase().compareTo(((AlbumItem)another).name.toLowerCase());
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return this.name.equals(((AlbumItem)other).name);
-        }
     }
 }

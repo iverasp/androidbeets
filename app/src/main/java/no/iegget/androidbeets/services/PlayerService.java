@@ -19,10 +19,8 @@ import android.util.Log;
 import java.io.IOException;
 
 import no.iegget.androidbeets.MainActivity;
-import no.iegget.androidbeets.R;
-import no.iegget.androidbeets.content.AlbumContent;
+import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.utils.BaseUrl;
-import no.iegget.androidbeets.utils.Global;
 
 /**
  * Created by iver on 01/12/15.
@@ -50,9 +48,7 @@ public class PlayerService extends Service
         }
     }
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //if (intent.getAction().equals(Global.ACTION_PLAY)) {
-            initMediaPlayer();
-        //}
+        initMediaPlayer();
         pi  = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -91,22 +87,21 @@ public class PlayerService extends Service
         startForeground(BIND_IMPORTANT, notification.build());
     }
 
-    public void loadTrack(AlbumContent.TrackItem track) {
-        Log.w(TAG, "loading track: " + track.title);
+    public void loadTrack(Track track) {
+        Log.w(TAG, "loading track: " + track.getTitle());
 
         wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         wifiLock.acquire();
-        makeForeground(track.title);
+        makeForeground(track.getTitle());
         if (mMediaPlayer == null) {
-            Log.w(TAG, "OMG MEDIAPLAYER IS NULL!");
             initMediaPlayer();
         }
 
         mMediaPlayer.reset();
 
         try {
-            mMediaPlayer.setDataSource(BaseUrl.baseUrl + "/item/" + track.id + "/transcode?coding=mp3&bitrate=192");
+            mMediaPlayer.setDataSource(BaseUrl.baseUrl + "/item/" + track.getId() + "/transcode?coding=mp3&bitrate=192");
             mMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
@@ -123,6 +118,11 @@ public class PlayerService extends Service
         if (mMediaPlayer != null ) {
             mMediaPlayer.start();
         }
+    }
+
+    public boolean isPlaying() {
+        if (mMediaPlayer == null) return false;
+        return mMediaPlayer.isPlaying();
     }
 
     @Nullable

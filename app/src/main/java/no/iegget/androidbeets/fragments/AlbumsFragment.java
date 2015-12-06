@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.adapters.AlbumsRecyclerViewAdapter;
 import no.iegget.androidbeets.content.AlbumsContent;
+import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.utils.Global;
 
@@ -112,6 +113,6 @@ public class AlbumsFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(AlbumsContent.AlbumItem item);
+        void onListFragmentInteraction(Album item);
     }
 }

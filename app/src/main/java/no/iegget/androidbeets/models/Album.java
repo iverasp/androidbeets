@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by iver on 30/11/15.
  */
-public class Album {
+public class Album implements Comparable {
 
     int id;
     String album;
@@ -53,5 +53,15 @@ public class Album {
     public String getArtworkUrl(int size) {
         String base = artworkUrl.substring(0, artworkUrl.lastIndexOf("/source/"));
         return base + "/source/" + size + "x" + size + "bb.jpg";
+    }
+
+    @Override
+    public int compareTo(Object another) {
+        return this.album.toLowerCase().compareTo(((Album)another).album.toLowerCase());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return this.album.equals(((Album)other).album);
     }
 }

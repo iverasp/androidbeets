@@ -3,7 +3,7 @@ package no.iegget.androidbeets.models;
 /**
  * Created by iver on 30/11/15.
  */
-public class Track {
+public class Track implements Comparable {
 
     int id;
     String title;
@@ -54,6 +54,16 @@ public class Track {
 
     public int getBitdepth() {
         return bitdepth;
+    }
+
+    @Override
+    public int compareTo(Object another) {
+        return this.track - ((Track)another).track;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return this.title.equals(((Track)other).title);
     }
 
     @Override

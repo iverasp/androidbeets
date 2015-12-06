@@ -19,6 +19,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -31,6 +33,7 @@ import no.iegget.androidbeets.fragments.ArtistsFragment;
 import no.iegget.androidbeets.fragments.PlayerFragment;
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
+import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.services.PlayerService;
 
 public class MainActivity extends AppCompatActivity implements
@@ -39,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements
         AlbumsFragment.OnListFragmentInteractionListener,
         AlbumFragment.OnListFragmentInteractionListener,
         PlayerFragment.OnFragmentInteractionListener,
-        SlidingUpPanelLayout.PanelSlideListener {
+        SlidingUpPanelLayout.PanelSlideListener,
+        Button.OnClickListener {
 
     private String TAG = this.getClass().getSimpleName();
     private int currentMenuItem = 3;
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
     private boolean firstPlay;
+    private Button toggleButton;
+    private TextView trackTitleText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements
         mSlidingUpPanelLayout.setPanelSlideListener(this);
         mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         firstPlay = false;
+        toggleButton = (Button) findViewById(R.id.panel_player_toggle_button);
+        toggleButton.setOnClickListener(this);
+        trackTitleText = (TextView) findViewById(R.id.panel_player_track_title);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -182,11 +191,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void setToolbarTitle(String title) {
-        try {
-            getSupportActionBar().setTitle(title);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(title);
     }
 
     @Override
@@ -206,21 +211,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onListFragmentInteraction(AlbumsContent.AlbumItem item) {
-        AlbumFragment albumFragment = AlbumFragment.newInstance(
-                1,
-                new Album(item.albumArtist, item.name, item.getArtworkUrl(1000))
-        );
+    public void onListFragmentInteraction(Album album) {
+        AlbumFragment albumFragment = AlbumFragment.newInstance(1, album);
+
         replaceFragment(albumFragment);
-        setToolbarTitle(item.name);
+        setToolbarTitle(album.getAlbum());
     }
 
     @Override
-    public void onListFragmentInteraction(AlbumContent.TrackItem item) {
-        Log.w(TAG, "should play file " + item.id);
+    public void onListFragmentInteraction(Track track) {
+        Log.w(TAG, "should play file " + track.getId());
         if (!firstPlay) mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         if (mBound) {
-            mPlayerService.loadTrack(item);
+            mPlayerService.loadTrack(track);
+            trackTitleText.setText(track.getTitle());
         }
     }
 
@@ -270,5 +274,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPanelHidden(View panel) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (mPlayerService.isPlaying()) mPlayerService.pause();
+        else if (!mPlayerService.isPlaying()) mPlayerService.resume();
     }
 }

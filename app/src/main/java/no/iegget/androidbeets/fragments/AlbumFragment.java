@@ -17,8 +17,8 @@ import com.squareup.picasso.Picasso;
 
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.adapters.AlbumRecyclerViewAdapter;
-import no.iegget.androidbeets.content.AlbumContent;
 import no.iegget.androidbeets.models.Album;
+import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.utils.Global;
 
 /**
@@ -150,6 +150,6 @@ public class AlbumFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(AlbumContent.TrackItem item);
+        void onListFragmentInteraction(Track track);
     }
 }
