@@ -62,7 +62,6 @@ public class AlbumContent {
     }
 
     private void addItem(final Track item) {
-        Log.w(TAG, "added " + item.getTitle());
         if (!items.contains(item)) {
             items.add(item);
             Collections.sort(items);

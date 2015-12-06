@@ -5,8 +5,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
@@ -35,6 +37,8 @@ public class PlayerService extends Service
     MediaPlayer mMediaPlayer = null;
     private final IBinder mBinder = new LocalBinder();
     private final String TAG = this.getClass().getSimpleName();
+    boolean mBound = false;
+    ProxyService mProxyService;
 
     WifiManager.WifiLock wifiLock = null;
 
@@ -47,14 +51,38 @@ public class PlayerService extends Service
             return PlayerService.this;
         }
     }
-    public int onStartCommand(Intent intent, int flags, int startId) {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        /*
         initMediaPlayer();
         pi  = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
+                */
+        Log.w(TAG, "ONCREATE");
 
-        return 0;
+        Intent proxyIntent = new Intent(this, ProxyService.class);
+        bindService(proxyIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ProxyService.LocalBinder binder = (ProxyService.LocalBinder) service;
+            mProxyService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     private void initMediaPlayer() {
         Log.w(TAG, "initmediaplayer");
@@ -101,7 +129,9 @@ public class PlayerService extends Service
         mMediaPlayer.reset();
 
         try {
-            mMediaPlayer.setDataSource(BaseUrl.baseUrl + "/item/" + track.getId() + "/transcode?coding=mp3&bitrate=192");
+            String url = BaseUrl.baseUrl + "/item/" + track.getId() + "/transcode?coding=mp3&bitrate=192";
+            if (mBound) url = mProxyService.getProxyUrl(url);
+            mMediaPlayer.setDataSource(url);
             mMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,6 +180,10 @@ public class PlayerService extends Service
     @Override
     public void onDestroy() {
         if (mMediaPlayer != null) mMediaPlayer.release();
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     @Override
