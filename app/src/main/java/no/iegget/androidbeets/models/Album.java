@@ -13,9 +13,12 @@ public class Album {
     int year;
     String genre;
 
-    public Album(String albumArtist, String albumTitle) {
+    private transient String artworkUrl;
+
+    public Album(String albumArtist, String albumTitle, String artworkUrl) {
         this.albumartist = albumArtist;
         this.album = albumTitle;
+        this.artworkUrl = artworkUrl;
     }
 
     @Override
@@ -41,5 +44,14 @@ public class Album {
 
     public String getGenre() {
         return genre;
+    }
+
+    public void setArtworkUrl(String url) {
+        this.artworkUrl = url;
+    }
+
+    public String getArtworkUrl(int size) {
+        String base = artworkUrl.substring(0, artworkUrl.lastIndexOf("/source/"));
+        return base + "/source/" + size + "x" + size + "bb.jpg";
     }
 }

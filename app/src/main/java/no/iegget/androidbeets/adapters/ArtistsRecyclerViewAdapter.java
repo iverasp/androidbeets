@@ -55,7 +55,6 @@ public class ArtistsRecyclerViewAdapter
         if (holder.mItem.artworkUrl != null) {
             Picasso.with(mContext)
                     .load(holder.mItem.artworkUrl)
-                    .resize(50, 50)
                     .error(R.mipmap.ic_launcher)
                     .placeholder(R.drawable.placeholder)
                     .into(holder.mImageView);

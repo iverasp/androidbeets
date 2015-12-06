@@ -114,10 +114,10 @@ public class AlbumsContent {
 
     public static class AlbumItem implements Comparable {
         public final String name;
-        public String artworkUrl;
         public final String albumArtist;
-        public int albumYear;
-        public String albumGenre;
+        public final int albumYear;
+        public final String albumGenre;
+        public String artworkUrl;
 
         public AlbumItem(String name, String albumArtist, int albumYear, String albumGenre) {
             this.name = name;
@@ -128,6 +128,11 @@ public class AlbumsContent {
 
         public void setArtworkUrl(String artworkUrl) {
             this.artworkUrl = artworkUrl;
+        }
+
+        public String getArtworkUrl(int size) {
+            String base = artworkUrl.substring(0, artworkUrl.lastIndexOf("/source/"));
+            return base + "/source/" + size + "x" + size + "bb.jpg";
         }
 
         @Override

@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import com.poliveira.parallaxrecyclerview.ParallaxRecyclerAdapter;
+import com.squareup.picasso.Picasso;
 
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.adapters.AlbumRecyclerViewAdapter;
@@ -25,15 +29,18 @@ import no.iegget.androidbeets.utils.Global;
  */
 public class AlbumFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
+    private final String TAG = this.getClass().getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private String albumArtist;
     private String albumTitle;
+    private String albumArtworkUrl;
     private Album album;
     private OnListFragmentInteractionListener mListener;
     private AlbumRecyclerViewAdapter adapter;
+
+    private Toolbar mToolbar;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -50,6 +57,7 @@ public class AlbumFragment extends Fragment {
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         args.putString(Global.ALBUM_TITLE, album.getAlbum());
         args.putString(Global.ALBUM_ARTIST, album.getAlbumartist());
+        args.putString(Global.ALBUM_ART_URL, album.getArtworkUrl(1000));
 
         fragment.setArguments(args);
         return fragment;
@@ -63,29 +71,53 @@ public class AlbumFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             albumArtist = getArguments().getString(Global.ALBUM_ARTIST);
             albumTitle = getArguments().getString(Global.ALBUM_TITLE);
+            albumArtworkUrl = getArguments().getString(Global.ALBUM_ART_URL);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_album_list, container, false);
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+        final View view = inflater.inflate(R.layout.fragment_album_list, container, false);
+        Context context = view.getContext();
+        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_album_recycler);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setHasFixedSize(true);
+
+        album = new Album(albumArtist, albumTitle, null);
+        AlbumRecyclerViewAdapter adapter = new AlbumRecyclerViewAdapter(mListener, album);
+
+        final ViewGroup header = (ViewGroup) inflater.inflate(R.layout.view_image_header, recyclerView, false);
+        ImageView headerImage = ((ImageView) header.findViewById(R.id.image_header));
+
+        Activity parentActivity = getActivity();
+        mToolbar = (Toolbar) parentActivity.findViewById(R.id.toolbar);
+        mToolbar.setBackgroundColor(getResources().getColor(R.color.toolbarTransparent));
+
+        adapter.setParallaxHeader(header, recyclerView);
+        adapter.setOnParallaxScroll(new ParallaxRecyclerAdapter.OnParallaxScroll() {
+            @Override
+            public void onParallaxScroll(float percentage, float offset, View view) {
+                // TODO: toolbar alpha
+                /*
+                mToolbar.setBackgroundColor(
+                    ScrollUtils.getColorWithAlpha(percentage, getResources().getColor(R.color.toolbarTransparent))
+                );
+                */
             }
+        });
 
-            album = new Album(albumArtist, albumTitle);
-            recyclerView.setAdapter(
-                    new AlbumRecyclerViewAdapter(mListener, getActivity(), album)
-            );
-        }
+        recyclerView.setAdapter(adapter);
+
+        Picasso.with(context)
+                .load(albumArtworkUrl)
+                .error(R.mipmap.ic_launcher)
+                .placeholder(R.drawable.placeholder)
+                .into(headerImage);
+
         return view;
     }
 

@@ -55,8 +55,8 @@ public class AlbumsRecyclerViewAdapter
         int albumYear = mValues.get(position).albumYear;
         String albumGenre = mValues.get(position).albumGenre;
 
-        String year = (albumYear == 0) ? "Uknown" : Integer.toString(albumYear);
-        String genre = (albumGenre == null) ? "Unknown" : albumGenre;
+        String year = (albumYear == 0) ? "Unknown year" : Integer.toString(albumYear);
+        String genre = (albumGenre.isEmpty()) ? "Unknown genre" : albumGenre;
 
         holder.mYearView.setText(year);
         holder.mTrackCountView.setText(genre);

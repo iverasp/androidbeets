@@ -1,11 +1,13 @@
 package no.iegget.androidbeets.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.poliveira.parallaxrecyclerview.ParallaxRecyclerAdapter;
 
 import java.util.List;
 
@@ -20,32 +22,34 @@ import no.iegget.androidbeets.models.Album;
  * specified {@link OnListFragmentInteractionListener}.
  */
 public class AlbumRecyclerViewAdapter
-        extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {
+        extends ParallaxRecyclerAdapter<AlbumContent.TrackItem> {
 
     private final String TAG = this.getClass().getSimpleName();
     private final List<AlbumContent.TrackItem> mValues;
     private final AlbumFragment.OnListFragmentInteractionListener mListener;
-    private Context mContext;
     private AlbumContent content;
 
-    public AlbumRecyclerViewAdapter(AlbumFragment.OnListFragmentInteractionListener listener, Context context, Album album) {
+    public AlbumRecyclerViewAdapter(AlbumFragment.OnListFragmentInteractionListener listener, Album album) {
+        super(null);
         content = new AlbumContent(this, album);
         mValues = content.ITEMS;
         mListener = listener;
-        mContext = context;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolderImpl(ViewGroup parent, ParallaxRecyclerAdapter<AlbumContent.TrackItem> parallaxRecyclerAdapter, int i) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_album, parent, false);
+                .inflate(R.layout.fragment_album_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolderImpl(RecyclerView.ViewHolder viewHolder, ParallaxRecyclerAdapter<AlbumContent.TrackItem> parallaxRecyclerAdapter, int position) {
+        final ViewHolder holder = (ViewHolder) viewHolder;
         holder.mItem = mValues.get(position);
         holder.mTitleView.setText(mValues.get(position).title);
+        Log.w(TAG, Integer.toString(mValues.get(position).number));
+        holder.mNumberView.setText(String.format("%-6d", mValues.get(position).number));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,19 +64,21 @@ public class AlbumRecyclerViewAdapter
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCountImpl(ParallaxRecyclerAdapter<AlbumContent.TrackItem> parallaxRecyclerAdapter) {
         return mValues.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mTitleView;
+        public final TextView mNumberView;
         public AlbumContent.TrackItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mTitleView = (TextView) view.findViewById(R.id.track_title);
+            mNumberView = (TextView) view.findViewById(R.id.track_number);
         }
 
         @Override

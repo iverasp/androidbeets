@@ -26,9 +26,7 @@ public class AlbumContent {
 
     private static final String TAG = "AlbumContent";
 
-    public static List<TrackItem> ITEMS;
-
-    //public static final List<String> ITEM_MAP = new ArrayList<>();
+    public List<TrackItem> ITEMS;
 
     Retrofit retrofitBeats;
     static AlbumRecyclerViewAdapter adapter;
@@ -64,7 +62,7 @@ public class AlbumContent {
         });
     }
 
-    private static void addItem(final TrackItem item) {
+    private void addItem(final TrackItem item) {
         Log.w(TAG, "added " + item.title);
         if (!ITEMS.contains(item)) {
             ITEMS.add(item);

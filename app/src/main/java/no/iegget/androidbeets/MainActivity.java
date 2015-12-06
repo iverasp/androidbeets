@@ -1,5 +1,7 @@
 package no.iegget.androidbeets;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,8 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,6 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import no.iegget.androidbeets.content.AlbumContent;
 import no.iegget.androidbeets.content.AlbumsContent;
@@ -30,12 +33,13 @@ import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.services.PlayerService;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
         ArtistsFragment.OnListFragmentInteractionListener,
         AlbumsFragment.OnListFragmentInteractionListener,
         AlbumFragment.OnListFragmentInteractionListener,
-        PlayerFragment.OnFragmentInteractionListener {
+        PlayerFragment.OnFragmentInteractionListener,
+        SlidingUpPanelLayout.PanelSlideListener {
 
     private String TAG = this.getClass().getSimpleName();
     private int currentMenuItem = 3;
@@ -43,16 +47,39 @@ public class MainActivity extends AppCompatActivity
     PlayerService mPlayerService;
     boolean mBound = false;
 
+    private Toolbar toolbar;
+
+    private SlidingUpPanelLayout mSlidingUpPanelLayout;
+    private boolean firstPlay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mSlidingUpPanelLayout.setPanelSlideListener(this);
+        mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        firstPlay = false;
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this,
+                drawer,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        ) /*{
+            public void onDrawerClosed(View view) {
+                getSupportActionBar().setTitle("App");
+            }
+            public void onDrawerOpened(View view) {
+                getSupportActionBar().setTitle("Menu");
+            }
+        }*/;
+
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -65,6 +92,8 @@ public class MainActivity extends AppCompatActivity
         transaction.replace(R.id.content_frame, homeFragment);
         //transaction.addToBackStack(null);
         transaction.commit();
+
+        setToolbarTitle("Artists");
 
     }
 
@@ -89,6 +118,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (mSlidingUpPanelLayout != null &&
+                (mSlidingUpPanelLayout.getPanelState()
+                        == SlidingUpPanelLayout.PanelState.EXPANDED
+                        || mSlidingUpPanelLayout.getPanelState()
+                        == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else if (getFragmentManager().getBackStackEntryCount() != 0) {
             getFragmentManager().popBackStack();
         } else {
@@ -146,6 +181,14 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
+    private void setToolbarTitle(String title) {
+        try {
+            getSupportActionBar().setTitle(title);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -159,20 +202,23 @@ public class MainActivity extends AppCompatActivity
                 new Artist(item.name)
         );
         replaceFragment(albumsFragment);
+        setToolbarTitle(item.name);
     }
 
     @Override
     public void onListFragmentInteraction(AlbumsContent.AlbumItem item) {
         AlbumFragment albumFragment = AlbumFragment.newInstance(
                 1,
-                new Album(item.albumArtist, item.name)
+                new Album(item.albumArtist, item.name, item.getArtworkUrl(1000))
         );
         replaceFragment(albumFragment);
+        setToolbarTitle(item.name);
     }
 
     @Override
     public void onListFragmentInteraction(AlbumContent.TrackItem item) {
         Log.w(TAG, "should play file " + item.id);
+        if (!firstPlay) mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         if (mBound) {
             mPlayerService.loadTrack(item);
         }
@@ -200,4 +246,29 @@ public class MainActivity extends AppCompatActivity
             mBound = false;
         }
     };
+
+    @Override
+    public void onPanelSlide(View panel, float slideOffset) {
+
+    }
+
+    @Override
+    public void onPanelCollapsed(View panel) {
+
+    }
+
+    @Override
+    public void onPanelExpanded(View panel) {
+
+    }
+
+    @Override
+    public void onPanelAnchored(View panel) {
+
+    }
+
+    @Override
+    public void onPanelHidden(View panel) {
+
+    }
 }

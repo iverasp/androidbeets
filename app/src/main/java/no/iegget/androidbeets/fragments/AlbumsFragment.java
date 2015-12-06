@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.adapters.AlbumsRecyclerViewAdapter;
 import no.iegget.androidbeets.content.AlbumsContent;
-import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.utils.Global;
 
@@ -68,7 +67,7 @@ public class AlbumsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_albums_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        //if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
@@ -79,7 +78,7 @@ public class AlbumsFragment extends Fragment {
             recyclerView.setAdapter(
                     new AlbumsRecyclerViewAdapter(mListener, getActivity(), artist)
             );
-        }
+        //}
         return view;
     }
 
@@ -92,6 +91,7 @@ public class AlbumsFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
+
     }
 
     @Override
