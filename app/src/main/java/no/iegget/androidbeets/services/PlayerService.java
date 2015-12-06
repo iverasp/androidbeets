@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import no.iegget.androidbeets.MainActivity;
 import no.iegget.androidbeets.models.Track;
-import no.iegget.androidbeets.utils.BaseUrl;
 
 /**
  * Created by iver on 01/12/15.
@@ -129,8 +128,8 @@ public class PlayerService extends Service
         mMediaPlayer.reset();
 
         try {
-            String url = BaseUrl.baseUrl + "/item/" + track.getId() + "/transcode?coding=mp3&bitrate=192";
-            if (mBound) url = mProxyService.getProxyUrl(url);
+
+            String url = mProxyService.getProxyUrl(track.getTrackId());
             mMediaPlayer.setDataSource(url);
             mMediaPlayer.prepareAsync();
         } catch (IOException e) {

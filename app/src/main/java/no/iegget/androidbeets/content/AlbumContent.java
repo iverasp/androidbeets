@@ -2,6 +2,8 @@ package no.iegget.androidbeets.content;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
@@ -39,6 +41,7 @@ public class AlbumContent {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client.interceptors().add(interceptor);
+
         retrofitBeats = new Retrofit.Builder()
                 .baseUrl(BaseUrl.baseUrl)
                 //.client(client)
@@ -49,6 +52,7 @@ public class AlbumContent {
         tracksCall.enqueue(new Callback<AlbumTracks>() {
             @Override
             public void onResponse(Response<AlbumTracks> response, Retrofit retrofit) {
+                //Log.w(TAG, response.body().toString());
                 for (Track track : response.body().getResults()) {
                     addItem(track);
                 }

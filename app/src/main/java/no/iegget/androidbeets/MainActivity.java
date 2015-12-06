@@ -25,9 +25,6 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import no.iegget.androidbeets.content.AlbumContent;
-import no.iegget.androidbeets.content.AlbumsContent;
-import no.iegget.androidbeets.content.ArtistsContent;
 import no.iegget.androidbeets.fragments.AlbumFragment;
 import no.iegget.androidbeets.fragments.AlbumsFragment;
 import no.iegget.androidbeets.fragments.ArtistsFragment;
@@ -35,6 +32,7 @@ import no.iegget.androidbeets.fragments.PlayerFragment;
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.models.Track;
+import no.iegget.androidbeets.services.DownloadService;
 import no.iegget.androidbeets.services.PlayerService;
 
 public class MainActivity extends AppCompatActivity implements
@@ -50,7 +48,9 @@ public class MainActivity extends AppCompatActivity implements
     private int currentMenuItem = 3;
 
     PlayerService mPlayerService;
-    boolean mBound = false;
+    DownloadService mDownloadService;
+    boolean mPlayerBound = false;
+    boolean mDownloadBound = false;
 
     private Toolbar toolbar;
 
@@ -112,16 +112,22 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, PlayerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Intent playerIntent = new Intent(this, PlayerService.class);
+        bindService(playerIntent, mPlayerConnection, Context.BIND_AUTO_CREATE);
+        Intent downloadIntent = new Intent(this, DownloadService.class);
+        bindService(downloadIntent, mDownloadConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
+        if (mPlayerBound) {
+            unbindService(mPlayerConnection);
+            mPlayerBound = false;
+        }
+        if (mDownloadBound) {
+            unbindService(mDownloadConnection);
+            mDownloadBound = false;
         }
     }
 
@@ -222,12 +228,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onListFragmentInteraction(Track track) {
-        Log.w(TAG, "should play file " + track.getId());
+        Log.w(TAG, "should play file " + track.getTrackId());
         if (!firstPlay) mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        if (mBound) {
+        if (mPlayerBound) {
             mPlayerService.loadTrack(track);
             trackTitleText.setText(track.getTitle());
             toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
+            mDownloadService.addToQueue(track);
         }
     }
 
@@ -237,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mPlayerConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -245,12 +252,29 @@ public class MainActivity extends AppCompatActivity implements
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) service;
             mPlayerService = binder.getService();
-            mBound = true;
+            mPlayerBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mPlayerBound = false;
+        }
+    };
+
+    private ServiceConnection mDownloadConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+            mDownloadService = binder.getService();
+            mDownloadBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mDownloadBound = false;
         }
     };
 
@@ -284,8 +308,7 @@ public class MainActivity extends AppCompatActivity implements
         if (mPlayerService.isPlaying()) {
             mPlayerService.pause();
             toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
-        }
-        else if (!mPlayerService.isPlaying()) {
+        } else {
             mPlayerService.resume();
             toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
         }

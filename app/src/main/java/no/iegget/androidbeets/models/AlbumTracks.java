@@ -12,4 +12,13 @@ public class AlbumTracks {
     public List<Track> getResults() {
         return results;
     }
+
+    @Override
+    public String toString() {
+        String result = "";
+        for (Track track : results) {
+            result += track.toString() + "\n";
+        }
+        return result;
+    }
 }

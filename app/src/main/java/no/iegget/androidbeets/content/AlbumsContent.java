@@ -54,9 +54,7 @@ public class AlbumsContent {
         artists.enqueue(new Callback<Albums>() {
             @Override
             public void onResponse(Response<Albums> response, Retrofit retrofit) {
-                for (Album album : response.body().getResults()) {
-                    addItem(album);
-                }
+                for (Album album : response.body().getResults()) addItem(album);
             }
 
             @Override
@@ -75,10 +73,8 @@ public class AlbumsContent {
                 String url = null;
                 try {
                     url = response.body().getResults().get(0).getArtworkUrl(200);
-                } catch (NullPointerException e) {
-                    Log.w(TAG, "response is null!");
-                } catch (IndexOutOfBoundsException e) {
-                    Log.w(TAG, e.getStackTrace().toString());
+                } catch (Exception e) {
+                    Log.w(TAG, e.getMessage());
                 }
 
                 if (url != null) item.setArtworkUrl(url);
@@ -87,7 +83,6 @@ public class AlbumsContent {
                     Collections.sort(items);
                     adapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override

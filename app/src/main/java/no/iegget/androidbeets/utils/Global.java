@@ -5,6 +5,9 @@ package no.iegget.androidbeets.utils;
  */
 public class Global {
 
+    public static final String getPlaybackUrl(int id) {
+        return BaseUrl.baseUrl + "/item/" + id + "/transcode?coding=mp3&bitrate=192";
+    }
     public static final String itunesBaseUrl = "https://itunes.apple.com";
 
     public static final String ALBUM_TITLE = "no.iegget.androidbeets.ALBUM_TITLE";

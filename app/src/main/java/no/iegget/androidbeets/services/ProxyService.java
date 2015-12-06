@@ -7,7 +7,11 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.activeandroid.query.Select;
 import com.danikula.videocache.HttpProxyCacheServer;
+
+import no.iegget.androidbeets.models.Track;
+import no.iegget.androidbeets.utils.Global;
 
 /**
  * Created by iver on 06/12/15.
@@ -31,9 +35,32 @@ public class ProxyService extends Service {
         return mBinder;
     }
 
-    public String getProxyUrl(String url) {
-        Log.w(TAG, getProxy().getProxyUrl(url));
-        return getProxy().getProxyUrl(url);
+    public String getProxyUrl(int id) {
+        String result = getProxyOrOfflineUrl(id);
+        Log.w(TAG, "Retrieving stream from: " + result);
+        return result;
+
+    }
+
+    private String getProxyOrOfflineUrl(int id) {
+        return (isAvailableOffline(id)) ?
+                getOfflineUrl(id) : getProxy().getProxyUrl(Global.getPlaybackUrl(id));
+    }
+
+    private String getOfflineUrl(int id) {
+        return ((Track) new Select()
+                .from(Track.class)
+                .where("track_id = ?", Integer.toString(id))
+                .executeSingle())
+                .getLocalPath();
+    }
+
+    private boolean isAvailableOffline(int id) {
+        return new Select()
+                .from(Track.class)
+                .where("track_id = ?", Integer.toString(id))
+                .execute()
+                .size() > 0;
     }
 
     private HttpProxyCacheServer getProxy() {

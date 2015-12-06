@@ -1,23 +1,46 @@
 package no.iegget.androidbeets.models;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by iver on 30/11/15.
  */
-public class Track implements Comparable {
+@Table(name = "track")
+public class Track extends Model implements Comparable {
 
-    int id;
+    @Column(name = "track_id")
+    @SerializedName("id")
+    int trackId;
+
+    @Column(name = "title")
     String title;
+    @Column(name = "albumartist")
     String albumartist;
+    @Column(name = "format")
     String format;
+    @Column(name = "track")
     int track;
+    @Column(name = "tracktotal")
     int tracktotal;
+    @Column(name = "samplerate")
     int samplerate;
+    @Column(name = "size")
     int size;
+    @Column(name = "bitrate")
     int bitrate;
+    @Column(name = "bitdepth")
     int bitdepth;
 
-    public int getId() {
-        return id;
+    @Column(name = "local_path")
+    private transient String localPath;
+
+    public Track() { super(); }
+
+    public int getTrackId() {
+        return trackId;
     }
 
     public String getTitle() {
@@ -54,6 +77,14 @@ public class Track implements Comparable {
 
     public int getBitdepth() {
         return bitdepth;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 
     @Override
