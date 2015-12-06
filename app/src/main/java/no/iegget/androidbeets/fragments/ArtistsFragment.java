@@ -1,9 +1,9 @@
 package no.iegget.androidbeets.fragments;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.adapters.ArtistsRecyclerViewAdapter;
-import no.iegget.androidbeets.content.ArtistsContent.ArtistItem;
+import no.iegget.androidbeets.models.Artist;
 
 /**
  * A fragment representing a list of Items.
@@ -106,6 +106,6 @@ public class ArtistsFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(ArtistItem item);
+        void onListFragmentInteraction(Artist artist);
     }
 }

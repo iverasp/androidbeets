@@ -12,6 +12,7 @@ import java.util.List;
 import no.iegget.androidbeets.adapters.ArtistsRecyclerViewAdapter;
 import no.iegget.androidbeets.api.BeetsAPI;
 import no.iegget.androidbeets.api.ItunesAPI;
+import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.models.Artists;
 import no.iegget.androidbeets.models.ItunesSearch;
 import no.iegget.androidbeets.utils.BaseUrl;
@@ -26,7 +27,7 @@ public class ArtistsContent {
 
     private static final String TAG = "ArtistContent";
 
-    public static final List<ArtistItem> ITEMS = new ArrayList<>();
+    public static List<Artist> items;
 
     //public static final List<String> ITEM_MAP = new ArrayList<>();
 
@@ -35,6 +36,7 @@ public class ArtistsContent {
     static ArtistsRecyclerViewAdapter adapter;
 
     public ArtistsContent(ArtistsRecyclerViewAdapter adapter) {
+        items  = new ArrayList<>();
         this.adapter = adapter;
         OkHttpClient client = new OkHttpClient();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -56,7 +58,7 @@ public class ArtistsContent {
             @Override
             public void onResponse(Response<Artists> response, Retrofit retrofit) {
                 for (String artist : response.body().getResults()) {
-                    if (artist != "") addItem(createArtistItem(artist));
+                    if (!artist.equals("")) addItem(new Artist(artist));
                 }
             }
 
@@ -67,9 +69,9 @@ public class ArtistsContent {
         });
     }
 
-    private static void addItem(final ArtistItem item) {
+    private static void addItem(final Artist item) {
         ItunesAPI itunesAPI = retrofitItunes.create(ItunesAPI.class);
-        Call<ItunesSearch> itunesSearchCall = itunesAPI.searchItunes(item.name);
+        Call<ItunesSearch> itunesSearchCall = itunesAPI.searchItunes(item.getName());
         itunesSearchCall.enqueue(new Callback<ItunesSearch>() {
             @Override
             public void onResponse(Response<ItunesSearch> response, Retrofit retrofit) {
@@ -78,13 +80,15 @@ public class ArtistsContent {
                     url = response.body().getResults().get(0).getArtworkUrl60();
                 } catch (NullPointerException e) {
                     Log.w(TAG, "response is null!");
+                } catch (IndexOutOfBoundsException e) {
+                    Log.w(TAG, "out of bounds");
                 }
 
                 if (url != null) item.setArtworkUrl(url);
                 //Log.w(TAG, "added " + item.name);
-                if (!ITEMS.contains(item)) {
-                    ITEMS.add(item);
-                    Collections.sort(ITEMS);
+                if (!items.contains(item)) {
+                    items.add(item);
+                    Collections.sort(items);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -93,53 +97,10 @@ public class ArtistsContent {
             @Override
             public void onFailure(Throwable t) {
                 Log.w(TAG, "FAILURE!");
-                ITEMS.add(item);
-                Collections.sort(ITEMS);
+                items.add(item);
+                Collections.sort(items);
                 adapter.notifyDataSetChanged();
             }
         });
-
-
-    }
-
-    private static ArtistItem createArtistItem(String artist) {
-        return new ArtistItem(artist);
-    }
-
-    private static String makeDetails(int position) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Details about Item: ").append(position);
-        for (int i = 0; i < position; i++) {
-            builder.append("\nMore details information here.");
-        }
-        return builder.toString();
-    }
-
-    public static class ArtistItem implements Comparable {
-        public final String name;
-        public String artworkUrl;
-
-        public ArtistItem(String name) {
-            this.name = name;
-        }
-
-        public void setArtworkUrl(String artworkUrl) {
-            this.artworkUrl = artworkUrl;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public int compareTo(Object another) {
-            return this.name.toLowerCase().compareTo(((ArtistItem)another).name.toLowerCase());
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return this.name.equals(((ArtistItem)other).name);
-        }
     }
 }

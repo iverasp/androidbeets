@@ -51,6 +51,7 @@ public class Album implements Comparable {
     }
 
     public String getArtworkUrl(int size) {
+        if (artworkUrl == null) return null;
         String base = artworkUrl.substring(0, artworkUrl.lastIndexOf("/source/"));
         return base + "/source/" + size + "x" + size + "bb.jpg";
     }

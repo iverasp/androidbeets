@@ -14,11 +14,11 @@ import java.util.List;
 
 import no.iegget.androidbeets.R;
 import no.iegget.androidbeets.content.ArtistsContent;
-import no.iegget.androidbeets.content.ArtistsContent.ArtistItem;
 import no.iegget.androidbeets.fragments.ArtistsFragment.OnListFragmentInteractionListener;
+import no.iegget.androidbeets.models.Artist;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link ArtistItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link no.iegget.androidbeets.models.Artist} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
@@ -26,14 +26,14 @@ public class ArtistsRecyclerViewAdapter
         extends RecyclerView.Adapter<ArtistsRecyclerViewAdapter.ViewHolder> {
 
     private final String TAG = this.getClass().getSimpleName();
-    private final List<ArtistItem> mValues;
+    private final List<Artist> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context mContext;
     private ArtistsContent content;
 
     public ArtistsRecyclerViewAdapter(OnListFragmentInteractionListener listener, Context context) {
         content = new ArtistsContent(this);
-        mValues = content.ITEMS;
+        mValues = content.items;
         mListener = listener;
         mContext = context;
     }
@@ -48,13 +48,13 @@ public class ArtistsRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mTitleView.setText(mValues.get(position).name);
+        holder.mTitleView.setText(mValues.get(position).getName());
 
         //Picasso.with(mContext).setIndicatorsEnabled(true);
         //Picasso.with(mContext).setLoggingEnabled(true);
-        if (holder.mItem.artworkUrl != null) {
+        if (holder.mItem.getArtworkUrl() != null) {
             Picasso.with(mContext)
-                    .load(holder.mItem.artworkUrl)
+                    .load(holder.mItem.getArtworkUrl())
                     .error(R.mipmap.ic_launcher)
                     .placeholder(R.drawable.placeholder)
                     .into(holder.mImageView);
@@ -82,7 +82,7 @@ public class ArtistsRecyclerViewAdapter
         public final View mView;
         public final TextView mTitleView;
         public final ImageView mImageView;
-        public ArtistItem mItem;
+        public Artist mItem;
 
         public ViewHolder(View view) {
             super(view);

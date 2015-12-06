@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
     private boolean firstPlay;
-    private Button toggleButton;
+    private ImageButton toggleButton;
     private TextView trackTitleText;
 
     @Override
@@ -66,11 +67,13 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mSlidingUpPanelLayout.setTouchEnabled(false);
         mSlidingUpPanelLayout.setPanelSlideListener(this);
         mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         firstPlay = false;
-        toggleButton = (Button) findViewById(R.id.panel_player_toggle_button);
+        toggleButton = (ImageButton) findViewById(R.id.panel_player_toggle_button);
         toggleButton.setOnClickListener(this);
+        toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
         trackTitleText = (TextView) findViewById(R.id.panel_player_track_title);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -201,19 +204,18 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onListFragmentInteraction(ArtistsContent.ArtistItem item) {
+    public void onListFragmentInteraction(Artist artist) {
         AlbumsFragment albumsFragment = AlbumsFragment.newInstance(
                 2,
-                new Artist(item.name)
+                new Artist(artist.getName())
         );
         replaceFragment(albumsFragment);
-        setToolbarTitle(item.name);
+        setToolbarTitle(artist.getName());
     }
 
     @Override
     public void onListFragmentInteraction(Album album) {
         AlbumFragment albumFragment = AlbumFragment.newInstance(1, album);
-
         replaceFragment(albumFragment);
         setToolbarTitle(album.getAlbum());
     }
@@ -225,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements
         if (mBound) {
             mPlayerService.loadTrack(track);
             trackTitleText.setText(track.getTitle());
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
         }
     }
 
@@ -278,7 +281,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View v) {
-        if (mPlayerService.isPlaying()) mPlayerService.pause();
-        else if (!mPlayerService.isPlaying()) mPlayerService.resume();
+        if (mPlayerService.isPlaying()) {
+            mPlayerService.pause();
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
+        }
+        else if (!mPlayerService.isPlaying()) {
+            mPlayerService.resume();
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
+        }
     }
 }
