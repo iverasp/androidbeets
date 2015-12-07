@@ -16,8 +16,9 @@ import com.poliveira.parallaxrecyclerview.ParallaxRecyclerAdapter;
 import com.squareup.picasso.Picasso;
 
 import no.iegget.androidbeets.R;
-import no.iegget.androidbeets.adapters.AlbumRecyclerViewAdapter;
+import no.iegget.androidbeets.adapters.PlaylistRecyclerViewAdapter;
 import no.iegget.androidbeets.models.Album;
+import no.iegget.androidbeets.models.Playlist;
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.utils.Global;
 
@@ -27,19 +28,15 @@ import no.iegget.androidbeets.utils.Global;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class AlbumFragment extends Fragment {
+public class PlaylistFragment extends Fragment {
 
     private final String TAG = this.getClass().getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private String albumArtist;
-    private String albumTitle;
-    private String albumArtworkUrl;
-    private Album album;
+    private Playlist playlist;
     private OnListFragmentInteractionListener mListener;
-    private OnListFragmentOptionsInteractionListener mOptionsListener;
-    private AlbumRecyclerViewAdapter adapter;
+    private PlaylistRecyclerViewAdapter adapter;
 
     private Toolbar mToolbar;
 
@@ -47,19 +44,16 @@ public class AlbumFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public AlbumFragment() {
+    public PlaylistFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static AlbumFragment newInstance(int columnCount, Album album) {
-        AlbumFragment fragment = new AlbumFragment();
+    public static PlaylistFragment newInstance(int columnCount, Playlist playlist) {
+        PlaylistFragment fragment = new PlaylistFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
-        args.putString(Global.ALBUM_TITLE, album.getAlbum());
-        args.putString(Global.ALBUM_ARTIST, album.getAlbumartist());
-        args.putString(Global.ALBUM_ART_URL, album.getArtworkUrl(1000));
-
+        args.putSerializable(Global.PLAYLIST, playlist);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,9 +64,6 @@ public class AlbumFragment extends Fragment {
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-            albumArtist = getArguments().getString(Global.ALBUM_ARTIST);
-            albumTitle = getArguments().getString(Global.ALBUM_TITLE);
-            albumArtworkUrl = getArguments().getString(Global.ALBUM_ART_URL);
         }
     }
 
@@ -88,8 +79,8 @@ public class AlbumFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
-        album = new Album(albumArtist, albumTitle, null);
-        AlbumRecyclerViewAdapter adapter = new AlbumRecyclerViewAdapter(mListener, mOptionsListener, album);
+        playlist = (Playlist) getArguments().getSerializable(Global.PLAYLIST);
+        PlaylistRecyclerViewAdapter adapter = new PlaylistRecyclerViewAdapter(mListener, playlist);
 
         final ViewGroup header = (ViewGroup) inflater.inflate(R.layout.view_image_header, recyclerView, false);
         ImageView headerImage = ((ImageView) header.findViewById(R.id.image_header));
@@ -113,11 +104,13 @@ public class AlbumFragment extends Fragment {
 
         recyclerView.setAdapter(adapter);
 
+        /*
         Picasso.with(context)
-                .load(albumArtworkUrl)
+                .load(playlist.getArtworkUrl())
                 .error(R.mipmap.ic_launcher)
                 .placeholder(R.drawable.placeholder)
                 .into(headerImage);
+        */
 
         return view;
     }
@@ -131,19 +124,12 @@ public class AlbumFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
-        if (context instanceof OnListFragmentOptionsInteractionListener) {
-            mOptionsListener = (OnListFragmentOptionsInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentOptionsInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mOptionsListener = null;
     }
 
     /**
@@ -159,9 +145,5 @@ public class AlbumFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Track track);
-    }
-
-    public interface OnListFragmentOptionsInteractionListener {
-        void onListFragmentOptionsInteractionListener(Track track);
     }
 }

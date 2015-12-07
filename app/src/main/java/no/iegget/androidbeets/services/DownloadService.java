@@ -76,11 +76,11 @@ public class DownloadService extends Service {
                         int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
                         int reason = cursor.getInt(columnReason);
                         if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                            Track track = download.getTrack();
-                            track.setLocalPath(savedFilePath);
-                            track.save();
+                            download.getTrack().setLocalPath(savedFilePath);
+                            download.getTrack().save();
                             download.delete();
                         }
+                        cursor.close();
                     }
                 }
             }

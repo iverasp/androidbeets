@@ -25,12 +25,16 @@ import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import no.iegget.androidbeets.dialogs.AddTrackToPlaylistDialog;
 import no.iegget.androidbeets.fragments.AlbumFragment;
 import no.iegget.androidbeets.fragments.AlbumsFragment;
 import no.iegget.androidbeets.fragments.ArtistsFragment;
 import no.iegget.androidbeets.fragments.PlayerFragment;
+import no.iegget.androidbeets.fragments.PlaylistFragment;
+import no.iegget.androidbeets.fragments.PlaylistsFragment;
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
+import no.iegget.androidbeets.models.Playlist;
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.services.DownloadService;
 import no.iegget.androidbeets.services.PlayerService;
@@ -41,6 +45,10 @@ public class MainActivity extends AppCompatActivity implements
         AlbumsFragment.OnListFragmentInteractionListener,
         AlbumFragment.OnListFragmentInteractionListener,
         PlayerFragment.OnFragmentInteractionListener,
+        PlaylistsFragment.OnListFragmentInteractionListener,
+        PlaylistFragment.OnListFragmentInteractionListener,
+        AlbumFragment.OnListFragmentOptionsInteractionListener,
+        AddTrackToPlaylistDialog.OnAddTrackToPlaylistListener,
         SlidingUpPanelLayout.PanelSlideListener,
         Button.OnClickListener {
 
@@ -73,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements
         firstPlay = false;
         toggleButton = (ImageButton) findViewById(R.id.panel_player_toggle_button);
         toggleButton.setOnClickListener(this);
-        toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
+        toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline_black_24dp));
         trackTitleText = (TextView) findViewById(R.id.panel_player_track_title);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -98,14 +106,15 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ArtistsFragment homeFragment = new ArtistsFragment();
+        //ArtistsFragment homeFragment = new ArtistsFragment();
+        PlaylistsFragment homeFragment = PlaylistsFragment.newInstance(1);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content_frame, homeFragment);
         //transaction.addToBackStack(null);
         transaction.commit();
 
-        setToolbarTitle("Artists");
+        setToolbarTitle("Playlists");
 
     }
 
@@ -161,31 +170,34 @@ public class MainActivity extends AppCompatActivity implements
         }
         currentMenuItem = id;
 
-        Fragment fragment = null;
-        Class fragmentClass = ArtistsFragment.class;
+        Fragment fragment;
 
-        if (id == R.id.nav_search) {
-            fragmentClass = AlbumFragment.class;
-        } else if (id == R.id.nav_artists) {
-            fragmentClass = ArtistsFragment.class;
-        } else if (id == R.id.nav_albums) {
-            fragmentClass = AlbumsFragment.class;
-        } else if (id == R.id.nav_home) {
-
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_logout) {
-
-        }
-
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
+        switch(id) {
+            case (R.id.nav_search):
+                return false;
+            case (R.id.nav_artists):
+                fragment = ArtistsFragment.newInstance(1);
+                setToolbarTitle("Artists");
+                break;
+            case (R.id.nav_albums):
+                fragment = AlbumsFragment.newInstance(2, new Artist(""));
+                setToolbarTitle("Albums");
+                break;
+            case (R.id.nav_playlists):
+                fragment = PlaylistsFragment.newInstance(1);
+                setToolbarTitle("Playlists");
+                break;
+            case (R.id.nav_home):
+                return false;
+            case (R.id.nav_settings):
+                return false;
+            case (R.id.nav_logout):
+                return false;
+            default:
+                return false;
         }
 
         replaceFragment(fragment);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -233,9 +245,26 @@ public class MainActivity extends AppCompatActivity implements
         if (mPlayerBound) {
             mPlayerService.loadTrack(track);
             trackTitleText.setText(track.getTitle());
-            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
-            mDownloadService.addToQueue(track);
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline_black_24dp));
         }
+    }
+
+    @Override
+    public void onListFragmentOptionsInteractionListener(Track track) {
+        AddTrackToPlaylistDialog.newInstance(track).show(getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onAddTrackToPlaylist(Playlist playlist, Track track) {
+        if (playlist.isAvailableOffline() && !track.isAvailableOffline())
+            mDownloadService.addToQueue(track);
+    }
+
+    @Override
+    public void onListFragmentInteraction(Playlist playlist) {
+        PlaylistFragment playlistFragment = PlaylistFragment.newInstance(1, playlist);
+        replaceFragment(playlistFragment);
+        setToolbarTitle(playlist.getName());
     }
 
     @Override
@@ -307,10 +336,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onClick(View v) {
         if (mPlayerService.isPlaying()) {
             mPlayerService.pause();
-            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline));
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_outline_black_24dp));
         } else {
             mPlayerService.resume();
-            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline));
+            toggleButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_outline_black_24dp));
         }
     }
 }

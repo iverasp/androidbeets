@@ -56,11 +56,12 @@ public class ProxyService extends Service {
     }
 
     private boolean isAvailableOffline(int id) {
-        return new Select()
+        Track track = new Select()
                 .from(Track.class)
                 .where("track_id = ?", Integer.toString(id))
-                .execute()
-                .size() > 0;
+                .executeSingle();
+        Log.w(TAG, track.getLocalPath());
+        return track.isAvailableOffline();
     }
 
     private HttpProxyCacheServer getProxy() {

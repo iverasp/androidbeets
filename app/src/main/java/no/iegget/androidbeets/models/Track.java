@@ -5,11 +5,13 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by iver on 30/11/15.
  */
 @Table(name = "track")
-public class Track extends Model implements Comparable {
+public class Track extends Model implements Comparable, Serializable {
 
     @Column(name = "track_id")
     @SerializedName("id")
@@ -85,6 +87,10 @@ public class Track extends Model implements Comparable {
 
     public void setLocalPath(String localPath) {
         this.localPath = localPath;
+    }
+
+    public boolean isAvailableOffline() {
+        return (this.localPath != null && !this.localPath.isEmpty());
     }
 
     @Override
