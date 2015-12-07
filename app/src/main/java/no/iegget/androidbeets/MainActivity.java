@@ -32,12 +32,14 @@ import no.iegget.androidbeets.fragments.ArtistsFragment;
 import no.iegget.androidbeets.fragments.PlayerFragment;
 import no.iegget.androidbeets.fragments.PlaylistFragment;
 import no.iegget.androidbeets.fragments.PlaylistsFragment;
+import no.iegget.androidbeets.fragments.PreferencesFragment;
 import no.iegget.androidbeets.models.Album;
 import no.iegget.androidbeets.models.Artist;
 import no.iegget.androidbeets.models.Playlist;
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.services.DownloadService;
 import no.iegget.androidbeets.services.PlayerService;
+import no.iegget.androidbeets.utils.PreferencesManager;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        PreferencesManager.initializeInstance(this);
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mSlidingUpPanelLayout.setTouchEnabled(false);
@@ -190,9 +193,9 @@ public class MainActivity extends AppCompatActivity implements
             case (R.id.nav_home):
                 return false;
             case (R.id.nav_settings):
-                return false;
-            case (R.id.nav_logout):
-                return false;
+                fragment = PreferencesFragment.newInstance();
+                setToolbarTitle("Preferences");
+                break;
             default:
                 return false;
         }

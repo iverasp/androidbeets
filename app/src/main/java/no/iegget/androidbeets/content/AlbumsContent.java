@@ -17,6 +17,7 @@ import no.iegget.androidbeets.models.Albums;
 import no.iegget.androidbeets.models.ItunesSearch;
 import no.iegget.androidbeets.utils.BaseUrl;
 import no.iegget.androidbeets.utils.Global;
+import no.iegget.androidbeets.utils.PreferencesManager;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -40,7 +41,7 @@ public class AlbumsContent {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client.interceptors().add(interceptor);
         retrofitBeats = new Retrofit.Builder()
-                .baseUrl(BaseUrl.baseUrl)
+                .baseUrl(PreferencesManager.getInstance().getBaseUrl())
                 //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

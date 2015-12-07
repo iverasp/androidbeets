@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
@@ -20,6 +21,7 @@ import java.util.List;
 import no.iegget.androidbeets.models.Download;
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.utils.Global;
+import no.iegget.androidbeets.utils.PreferencesManager;
 
 /**
  * Created by iver on 06/12/15.
@@ -44,7 +46,6 @@ public class DownloadService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.w(TAG, "created downloadservice");
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         makeDownloadCompleteReceiver();
         registerReceiver(mReceiverDownloadComplete, intentFilter);
@@ -88,11 +89,14 @@ public class DownloadService extends Service {
     }
 
     public long addToQueue(Track track) {
+        PreferencesManager mPref = PreferencesManager.getInstance();
+        String url = Global.getPlaybackUrl(mPref.getBaseUrl(), track.getTrackId(), mPref.getOfflineQuality());
         DownloadManager.Request request =
-                new DownloadManager.Request(Uri.parse(Global.getPlaybackUrl(track.getTrackId())));
+                new DownloadManager.Request(Uri.parse(url));
         request.setTitle("Downloading track");
         request.setDescription(track.getTitle());
         request.setVisibleInDownloadsUi(false);
+        request.setAllowedOverMetered(mPref.getDownloadWhileOnCellular());
         long reference = mDownloadManager.enqueue(request);
         track.save();
         new Download(track, reference).save();

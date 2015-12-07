@@ -5,9 +5,11 @@ package no.iegget.androidbeets.utils;
  */
 public class Global {
 
-    public static final String getPlaybackUrl(int id) {
-        return BaseUrl.baseUrl + "/item/" + id + "/transcode?coding=mp3&bitrate=192";
+    public static final String getPlaybackUrl(String baseUrl, int id, String bitrate) {
+        if (Integer.valueOf(bitrate) == 9000) return baseUrl + "/item/" + id + "/file";
+        return baseUrl + "/item/" + id + "/transcode?coding=mp3&bitrate=" + bitrate;
     }
+
     public static final String itunesBaseUrl = "https://itunes.apple.com";
 
     public static final String ALBUM_TITLE = "no.iegget.androidbeets.ALBUM_TITLE";
@@ -19,5 +21,12 @@ public class Global {
     public static final String TRACK = "no.iegget.androidbeets.TRACK";
     public static final String PLAYLIST = "no.iegget.androidbeets.PLAYLIST";
 
-    public final static String ACTION_PLAY = "no.iegget.androidbeets.PLAY";
+    public final static String PREFERENCES_KEY = "no.iegget.androidbeets.preferences";
+    public final static String SERVER_URL = "no.iegget.androidbeets.SERVER_URL";
+    public final static String SERVER_PORT = "no.iegget.androidbeets.SERVER_PORT";
+    public final static String SERVER_USERNAME = "no.iegget.androidbeets.SERVER_USERNAME";
+    public final static String SERVER_PASSWORD = "no.iegget.androidbeets.SERVER_PASSWORD";
+    public final static String STREAMING_QUALITY = "no.iegget.androidbeets.STREAMING_QUALITY";
+    public final static String OFFLINE_QUALITY = "no.iegget.androidbeets.OFFLINE_QUALITY";
+    public final static String DOWNLOAD_CELLULAR = "no.iegget.androidbeets.DOWNLOAD_CELLULAR";
 }

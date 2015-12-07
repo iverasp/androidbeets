@@ -12,6 +12,7 @@ import com.danikula.videocache.HttpProxyCacheServer;
 
 import no.iegget.androidbeets.models.Track;
 import no.iegget.androidbeets.utils.Global;
+import no.iegget.androidbeets.utils.PreferencesManager;
 
 /**
  * Created by iver on 06/12/15.
@@ -43,8 +44,9 @@ public class ProxyService extends Service {
     }
 
     private String getProxyOrOfflineUrl(int id) {
+        PreferencesManager mPref = PreferencesManager.getInstance();
         return (isAvailableOffline(id)) ?
-                getOfflineUrl(id) : getProxy().getProxyUrl(Global.getPlaybackUrl(id));
+                getOfflineUrl(id) : getProxy().getProxyUrl(Global.getPlaybackUrl(mPref.getBaseUrl(), id, mPref.getStreamingQuality()));
     }
 
     private String getOfflineUrl(int id) {
@@ -60,7 +62,7 @@ public class ProxyService extends Service {
                 .from(Track.class)
                 .where("track_id = ?", Integer.toString(id))
                 .executeSingle();
-        Log.w(TAG, track.getLocalPath());
+        if (track == null) return false;
         return track.isAvailableOffline();
     }
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen  xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Server settings" >
+
+        <EditTextPreference
+            android:key="server_address_key"
+            android:title="Address"
+            android:persistent="false"
+            android:defaultValue="http://"/>
+
+        <EditTextPreference
+            android:key="server_port_key"
+            android:title="Port"
+            android:persistent="false"
+            android:inputType="number"/>
+
+        <EditTextPreference
+            android:key="server_username_key"
+            android:title="Username"
+            android:persistent="false" />
+
+        <EditTextPreference
+            android:key="server_password_key"
+            android:title="Password"
+            android:persistent="false"
+            android:inputType="textPassword"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Audio quality" >
+
+        <ListPreference
+            android:key="streaming_quality_key"
+            android:title="Streaming quality"
+            android:entries="@array/entries_streaming_quality"
+            android:entryValues="@array/values_streaming_quality" />
+
+        <ListPreference
+            android:key="offline_quality_key"
+            android:title="Offline quality"
+            android:entries="@array/entries_offline_quality"
+            android:entryValues="@array/values_offline_quality" />
+
+        <SwitchPreference
+            android:key="offline_cellular_key"
+            android:title="Download using cellular"
+            android:summary="Recommended setting: Off" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

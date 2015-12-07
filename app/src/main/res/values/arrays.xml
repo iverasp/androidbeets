@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries_offline_quality">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+        <item>Original</item>
+    </string-array>
+
+    <string-array name="values_offline_quality">
+        <item>128</item>
+        <item>192</item>
+        <item>320</item>
+        <item>9000</item>
+    </string-array>
+
+    <string-array name="entries_streaming_quality">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+
+    <string-array name="values_streaming_quality">
+        <item>128</item>
+        <item>192</item>
+        <item>320</item>
+    </string-array>
+
+</resources>
